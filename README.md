@@ -2,6 +2,9 @@
 
 Docker Compose setup for Rewordly services.
 
+**Production Domain**: `rewordly.store`  
+**WebSocket Endpoint**: `wss://rewordly.store`
+
 ## Services
 
 - **languagetool**: LanguageTool grammar checking service (port 8010)
@@ -78,24 +81,32 @@ REWORDLY_DIR=/opt/rewordly ./deploy.sh
 ## Service URLs
 
 - **LanguageTool**: `http://localhost:8010`
-- **Rewordly WebSocket (WSS)**: `wss://161.35.153.201` (via Nginx)
+- **Rewordly WebSocket (WSS)**: `wss://rewordly.store` (via Nginx with SSL)
 - **Rewordly WebSocket (direct)**: `ws://localhost:8081` (internal only)
 
 ## SSL/WSS Setup
 
-⚠️ **Important**: HTTPS pages require WSS (secure WebSocket). 
+⚠️ **Important**: HTTPS pages require WSS (secure WebSocket).
 
-**Quick SSL setup (self-signed for IP):**
+**Domain Setup:**
+- Domain: `rewordly.store`
+- SSL Certificate: GoDaddy or Let's Encrypt
+- See [DOMAIN_SETUP.md](./DOMAIN_SETUP.md) for detailed setup instructions
+
+**Quick SSL setup with Let's Encrypt (recommended):**
 ```bash
-cd /root/rewordly/rewordly-deploy
-chmod +x ssl-setup.sh
-sudo ./ssl-setup.sh
-docker compose restart nginx
+# On server
+sudo apt-get update
+sudo apt-get install certbot
+docker compose stop nginx
+sudo certbot certonly --standalone -d rewordly.store -d www.rewordly.store
+docker compose start nginx
 ```
 
-See [SSL_SETUP.md](./SSL_SETUP.md) for detailed SSL certificate setup.
+**GoDaddy SSL Certificate:**
+See [DOMAIN_SETUP.md](./DOMAIN_SETUP.md) for instructions on uploading GoDaddy SSL certificates.
 
-After SSL setup, extension will connect via `wss://161.35.153.201`.
+After SSL setup, extension will connect via `wss://rewordly.store`.
 
 ## Health Checks
 
