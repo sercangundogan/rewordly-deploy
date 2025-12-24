@@ -30,8 +30,7 @@ services:
       context: ../rewordly-server
       dockerfile: Dockerfile
     container_name: rewordly-server
-    ports:
-      - "${WS_PORT:-8081}:8081"
+    # Port not exposed externally - accessed via nginx
     environment:
       - WS_PORT=${WS_PORT:-8081}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-chrome-extension://*}
@@ -47,6 +46,27 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    networks:
+      - rewordly-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx reverse proxy for SSL/WSS support
+  nginx:
+    image: nginx:alpine
+    container_name: rewordly-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: always
+    depends_on:
+      - rewordly-server
     networks:
       - rewordly-network
     logging:
