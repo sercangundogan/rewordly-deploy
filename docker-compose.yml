@@ -62,6 +62,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - nginx-logs:/var/log/nginx
     restart: always
     depends_on:
       - rewordly-server
@@ -72,6 +73,9 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  nginx-logs:
 
 networks:
   rewordly-network:
