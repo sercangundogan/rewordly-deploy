@@ -38,16 +38,24 @@ REWORDLY_DIR=/opt/rewordly ./deploy.sh
 
 3. Start services:
    ```bash
+   # Docker Compose V2 (newer)
+   docker compose up -d
+   
+   # Or Docker Compose V1 (older)
    docker-compose up -d
    ```
 
 4. Check logs:
    ```bash
+   docker compose logs -f
+   # or
    docker-compose logs -f
    ```
 
 5. Stop services:
    ```bash
+   docker compose down
+   # or
    docker-compose down
    ```
 
@@ -102,26 +110,38 @@ The `deploy.sh` script automates:
 To rebuild rewordly-server after code changes:
 
 ```bash
+# Use docker compose (V2) or docker-compose (V1)
+docker compose build rewordly-server
+docker compose up -d rewordly-server
+
+# Or with docker-compose (V1)
 docker-compose build rewordly-server
 docker-compose up -d rewordly-server
 ```
 
-Or use the deployment script which automatically pulls latest code.
+Or use the deployment script which automatically pulls latest code and detects the correct command.
 
 ## Troubleshooting
 
 ### Check service status:
 ```bash
+docker compose ps
+# or
 docker-compose ps
 ```
 
 ### View logs:
 ```bash
+docker compose logs languagetool
+docker compose logs rewordly-server
+# or
 docker-compose logs languagetool
 docker-compose logs rewordly-server
 ```
 
 ### Restart a service:
 ```bash
+docker compose restart rewordly-server
+# or
 docker-compose restart rewordly-server
 ```

@@ -63,20 +63,32 @@ fi
 echo -e "${GREEN}🐳 Starting Docker services...${NC}"
 cd ${REWORDLY_DEPLOY_DIR}
 
+# Detect docker compose command (docker compose or docker-compose)
+if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    echo -e "${RED}❌ Error: docker compose or docker-compose not found!${NC}"
+    exit 1
+fi
+
+echo -e "${YELLOW}Using: ${DOCKER_COMPOSE}${NC}"
+
 # Stop existing containers
 echo -e "${YELLOW}Stopping existing containers...${NC}"
-docker-compose down || true
+${DOCKER_COMPOSE} down || true
 
 # Build and start services
 echo -e "${YELLOW}Building and starting services...${NC}"
-docker-compose up -d --build
+${DOCKER_COMPOSE} up -d --build
 
 # Wait a bit for services to start
 sleep 5
 
 # Check service status
 echo -e "${GREEN}📊 Service Status:${NC}"
-docker-compose ps
+${DOCKER_COMPOSE} ps
 
 echo ""
 echo -e "${GREEN}✅ Deployment completed!${NC}"
@@ -86,4 +98,4 @@ echo -e "${GREEN}🔍 LanguageTool: http://161.35.153.201:8010${NC}"
 # Show logs
 echo ""
 echo -e "${YELLOW}Recent logs:${NC}"
-docker-compose logs --tail=20
+${DOCKER_COMPOSE} logs --tail=20
