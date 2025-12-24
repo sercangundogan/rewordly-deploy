@@ -93,18 +93,36 @@ REWORDLY_DIR=/opt/rewordly ./deploy.sh
 - SSL Certificate: GoDaddy or Let's Encrypt
 - See [DOMAIN_SETUP.md](./DOMAIN_SETUP.md) for detailed setup instructions
 
-**Quick SSL setup with Let's Encrypt (recommended):**
+**Quick SSL setup with Let's Encrypt (automated with auto-renewal):**
+```bash
+# On server
+cd /root/rewordly/rewordly-deploy
+chmod +x letsencrypt-setup.sh
+
+# Set your email (optional, defaults to admin@rewordly.store)
+export SSL_EMAIL=your-email@example.com
+
+# Run setup script (handles everything automatically)
+sudo ./letsencrypt-setup.sh
+```
+
+The script will:
+- Install certbot if needed
+- Check DNS configuration
+- Obtain SSL certificate
+- Setup automatic renewal (runs twice daily)
+- Configure nginx
+
+**Manual Let's Encrypt setup:**
 ```bash
 # On server
 sudo apt-get update
 sudo apt-get install certbot
+cd /root/rewordly/rewordly-deploy
 docker compose stop nginx
 sudo certbot certonly --standalone -d rewordly.store -d www.rewordly.store
 docker compose start nginx
 ```
-
-**GoDaddy SSL Certificate:**
-See [DOMAIN_SETUP.md](./DOMAIN_SETUP.md) for instructions on uploading GoDaddy SSL certificates.
 
 After SSL setup, extension will connect via `wss://rewordly.store`.
 
