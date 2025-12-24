@@ -83,7 +83,17 @@ REWORDLY_DIR=/opt/rewordly ./deploy.sh
 
 ## SSL/WSS Setup
 
-⚠️ **Important**: HTTPS pages require WSS (secure WebSocket). See [SSL_SETUP.md](./SSL_SETUP.md) for SSL certificate setup.
+⚠️ **Important**: HTTPS pages require WSS (secure WebSocket). 
+
+**Quick SSL setup (self-signed for IP):**
+```bash
+cd /root/rewordly/rewordly-deploy
+chmod +x ssl-setup.sh
+sudo ./ssl-setup.sh
+docker compose restart nginx
+```
+
+See [SSL_SETUP.md](./SSL_SETUP.md) for detailed SSL certificate setup.
 
 After SSL setup, extension will connect via `wss://161.35.153.201`.
 
