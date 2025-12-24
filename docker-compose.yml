@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # LanguageTool service for grammar checking
+  languagetool:
+    image: erikvl87/languagetool:latest
+    container_name: rewordly-languagetool
+    ports:
+      - "${LANGUAGETOOL_PORT:-8010}:8010"
+    environment:
+      - JAVA_OPTS=-Xmx2g
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/v2/languages"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - rewordly-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Rewordly WebSocket Server
+  rewordly-server:
+    build:
+      context: ../rewordly-server
+      dockerfile: Dockerfile
+    container_name: rewordly-server
+    ports:
+      - "${WS_PORT:-8081}:8081"
+    environment:
+      - WS_PORT=${WS_PORT:-8081}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-chrome-extension://*}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LANGUAGETOOL_API_URL=http://languagetool:8010/v2/check
+    restart: always
+    depends_on:
+      languagetool:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "const ws = require('ws'); const client = new ws.WebSocket('ws://localhost:8081'); client.on('open', () => { client.close(); process.exit(0); }); client.on('error', () => process.exit(1)); setTimeout(() => process.exit(1), 5000);"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - rewordly-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  rewordly-network:
+    driver: bridge
