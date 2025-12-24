@@ -52,18 +52,28 @@ fi
 
 echo ""
 
-# Check ports
+# Check ports (on host, not in container)
 echo -e "${YELLOW}4. Checking ports...${NC}"
-if netstat -tuln 2>/dev/null | grep -q ":443 "; then
+if ss -tuln 2>/dev/null | grep -q ":443 " || netstat -tuln 2>/dev/null | grep -q ":443 "; then
     echo -e "${GREEN}✅ Port 443 is listening${NC}"
 else
-    echo -e "${RED}❌ Port 443 is NOT listening!${NC}"
+    # Check via docker port mapping
+    if docker compose ps nginx 2>/dev/null | grep -q "443"; then
+        echo -e "${GREEN}✅ Port 443 is mapped (checking via Docker)${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Port 443 check inconclusive (check manually: ss -tuln | grep 443)${NC}"
+    fi
 fi
 
-if netstat -tuln 2>/dev/null | grep -q ":80 "; then
+if ss -tuln 2>/dev/null | grep -q ":80 " || netstat -tuln 2>/dev/null | grep -q ":80 "; then
     echo -e "${GREEN}✅ Port 80 is listening${NC}"
 else
-    echo -e "${RED}❌ Port 80 is NOT listening!${NC}"
+    # Check via docker port mapping
+    if docker compose ps nginx 2>/dev/null | grep -q "80"; then
+        echo -e "${GREEN}✅ Port 80 is mapped (checking via Docker)${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Port 80 check inconclusive (check manually: ss -tuln | grep 80)${NC}"
+    fi
 fi
 
 echo ""

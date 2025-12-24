@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # LanguageTool service for grammar checking
   languagetool:
