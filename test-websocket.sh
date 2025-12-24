@@ -23,63 +23,26 @@ fi
 
 echo ""
 
-# Test 2: WebSocket connection (using Node.js)
-echo -e "${YELLOW}2. Testing WebSocket connection (WSS)...${NC}"
+# Test 2: WebSocket connection (exactly like extension)
+echo -e "${YELLOW}2. Testing WebSocket connection (WSS) - Extension style...${NC}"
 if command -v node &> /dev/null; then
-    node << 'EOF'
+    if [ -f "test-extension-connection.js" ]; then
+        node test-extension-connection.js
+    else
+        echo -e "${RED}❌ test-extension-connection.js not found${NC}"
+        echo -e "${YELLOW}   Using inline test instead...${NC}"
+        node << 'EOF'
 const WebSocket = require('ws');
-
-const ws = new WebSocket('wss://161.35.153.201', {
-    rejectUnauthorized: false // Accept self-signed certificate
-});
-
-const timeout = setTimeout(() => {
-    console.log('❌ Connection timeout');
-    ws.close();
-    process.exit(1);
-}, 5000);
-
+const ws = new WebSocket('wss://161.35.153.201', { rejectUnauthorized: false });
+const timeout = setTimeout(() => { console.log('❌ Timeout'); ws.close(); process.exit(1); }, 5000);
 ws.on('open', () => {
-    console.log('✅ WebSocket connected!');
-    clearTimeout(timeout);
-    
-    // Send a test message
-    const testMessage = {
-        id: 'test-' + Date.now(),
-        type: 'grammar_check',
-        text: 'Hello world'
-    };
-    
-    ws.send(JSON.stringify(testMessage));
-    
-    setTimeout(() => {
-        ws.close();
-        process.exit(0);
-    }, 2000);
+    console.log('✅ Connected!');
+    ws.send(JSON.stringify({ id: 'test-' + Date.now(), type: 'grammar_check', text: 'Hello world', mode: 'default' }));
 });
-
-ws.on('message', (data) => {
-    try {
-        const message = JSON.parse(data.toString());
-        console.log('📨 Received message:', message.type);
-        if (message.type === 'grammar_check_response') {
-            console.log('✅ Grammar check response received!');
-        }
-    } catch (e) {
-        console.log('📨 Received:', data.toString());
-    }
-});
-
-ws.on('error', (error) => {
-    console.log('❌ WebSocket error:', error.message);
-    clearTimeout(timeout);
-    process.exit(1);
-});
-
-ws.on('close', () => {
-    console.log('🔌 WebSocket closed');
-});
+ws.on('message', (d) => { console.log('📥', JSON.parse(d.toString()).type); clearTimeout(timeout); setTimeout(() => { ws.close(); process.exit(0); }, 1000); });
+ws.on('error', (e) => { console.log('❌', e.message); clearTimeout(timeout); process.exit(1); });
 EOF
+    fi
 else
     echo -e "${RED}❌ Node.js not found. Install Node.js to test WebSocket.${NC}"
 fi
