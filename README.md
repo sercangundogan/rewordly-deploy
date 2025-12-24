@@ -11,22 +11,17 @@ Docker Compose setup for Rewordly services.
 
 ### Automated Deployment (Recommended)
 
-Use the deployment script to automatically pull latest code and start services:
+Run the deployment script directly on the server to pull latest code and start services:
 
-**Linux/Mac:**
 ```bash
+cd /root/rewordly/rewordly-deploy
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
-**Windows (PowerShell):**
-```powershell
-.\deploy.ps1
-```
-
-**With custom settings:**
+**With custom directory:**
 ```bash
-DEPLOY_HOST=your-server.com DEPLOY_USER=root ./deploy.sh
+REWORDLY_DIR=/opt/rewordly ./deploy.sh
 ```
 
 ### Manual Deployment
@@ -89,20 +84,17 @@ Services communicate via Docker network `rewordly-network`. LanguageTool is acce
 
 ## Deployment Script
 
-The `deploy.sh` (Linux/Mac) or `deploy.ps1` (Windows) script automates:
-1. SSH connection to server
-2. Git pull for both `rewordly-server` and `rewordly-deploy`
-3. Docker Compose build and start
-4. Service status check
+The `deploy.sh` script automates:
+1. Git pull for both `rewordly-server` and `rewordly-deploy`
+2. Docker Compose build and start
+3. Service status check
 
 **Prerequisites:**
-- SSH access to server
+- Run on the server (SSH into server first)
 - Git repositories cloned on server
 - Docker and Docker Compose installed on server
 
 **Environment variables (optional):**
-- `DEPLOY_HOST`: Server IP/hostname (default: 161.35.153.201)
-- `DEPLOY_USER`: SSH user (default: root)
 - `REWORDLY_DIR`: Target directory on server (default: /root/rewordly)
 
 ## Rebuilding
