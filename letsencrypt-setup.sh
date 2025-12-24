@@ -32,13 +32,23 @@ echo ""
 
 # Check DNS resolution
 echo -e "${YELLOW}🔍 Checking DNS resolution...${NC}"
-if nslookup ${DOMAIN} | grep -q "161.35.153.201"; then
+DNS_RESOLVED=false
+if nslookup ${DOMAIN} 2>/dev/null | grep -q "161.35.153.201"; then
     echo -e "${GREEN}✅ DNS is correctly configured${NC}"
+    DNS_RESOLVED=true
 else
-    echo -e "${RED}❌ DNS is not pointing to 161.35.153.201${NC}"
-    echo -e "${YELLOW}Please wait for DNS propagation (5-30 minutes)${NC}"
-    echo -e "${YELLOW}Or check your DNS settings in GoDaddy${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠️  DNS is not yet pointing to 161.35.153.201${NC}"
+    echo -e "${YELLOW}This might be due to DNS propagation delay (5-30 minutes)${NC}"
+    echo ""
+    read -p "Continue anyway? (y/n) " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}⚠️  Continuing without DNS verification...${NC}"
+        DNS_RESOLVED=false
+    else
+        echo -e "${RED}❌ Aborted. Please wait for DNS propagation and try again.${NC}"
+        exit 1
+    fi
 fi
 
 echo ""
