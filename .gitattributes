@@ -1,0 +1,3 @@
+# Ensure deploy.sh is executable
+deploy.sh text eol=lf
+

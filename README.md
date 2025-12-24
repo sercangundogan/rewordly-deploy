@@ -15,9 +15,16 @@ Run the deployment script directly on the server to pull latest code and start s
 
 ```bash
 cd /root/rewordly/rewordly-deploy
+./deploy.sh
+```
+
+**Note:** The script will automatically make itself executable. If you get "Permission denied", run once:
+```bash
 chmod +x deploy.sh
 ./deploy.sh
 ```
+
+After that, the script handles file permissions automatically and git will ignore chmod changes.
 
 **With custom directory:**
 ```bash

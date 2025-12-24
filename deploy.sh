@@ -4,6 +4,9 @@
 # Pulls latest code and starts services via Docker Compose
 # Run this script directly on the server
 
+# Make this script executable (if not already)
+chmod +x "$0" 2>/dev/null || true
+
 set -e  # Exit on error
 
 # Colors for output
@@ -27,10 +30,17 @@ echo -e "${GREEN}📦 Pulling latest code...${NC}"
 mkdir -p ${REWORDLY_DIR}
 cd ${REWORDLY_DIR}
 
+# Configure git to ignore file mode changes (prevents chmod issues)
+git config core.fileMode false || true
+
 # Clone or update rewordly-server
 if [ -d "${REWORDLY_SERVER_DIR}" ]; then
     echo -e "${YELLOW}Updating rewordly-server...${NC}"
     cd ${REWORDLY_SERVER_DIR}
+    # Ignore file mode changes to prevent chmod conflicts
+    git config core.fileMode false || true
+    # Reset any file mode changes
+    git checkout . 2>/dev/null || true
     git pull origin main || git pull origin master
 else
     echo -e "${YELLOW}Cloning rewordly-server...${NC}"
@@ -42,7 +52,13 @@ fi
 if [ -d "${REWORDLY_DEPLOY_DIR}" ]; then
     echo -e "${YELLOW}Updating rewordly-deploy...${NC}"
     cd ${REWORDLY_DEPLOY_DIR}
+    # Ignore file mode changes to prevent chmod conflicts
+    git config core.fileMode false || true
+    # Reset any file mode changes
+    git checkout . 2>/dev/null || true
     git pull origin main || git pull origin master
+    # Ensure deploy.sh is executable after pull
+    chmod +x deploy.sh 2>/dev/null || true
 else
     echo -e "${YELLOW}Cloning rewordly-deploy...${NC}"
     git clone https://github.com/sercangundogan/rewordly-deploy.git ${REWORDLY_DEPLOY_DIR}
