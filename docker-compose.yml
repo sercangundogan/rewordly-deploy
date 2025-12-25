@@ -52,6 +52,31 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Rewordly Web (Next.js Frontend)
+  rewordly-web:
+    build:
+      context: ../rewordly-web
+      dockerfile: Dockerfile
+    container_name: rewordly-web
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PORT=3000
+    restart: always
+    networks:
+      - rewordly-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/rewrite", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # Nginx reverse proxy for SSL/WSS support
   nginx:
     image: nginx:alpine
@@ -66,6 +91,7 @@ services:
     restart: always
     depends_on:
       - rewordly-server
+      - rewordly-web
     networks:
       - rewordly-network
     logging:

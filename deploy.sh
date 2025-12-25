@@ -18,6 +18,7 @@ NC='\033[0m' # No Color
 # Configuration
 REWORDLY_DIR="${REWORDLY_DIR:-/root/rewordly}"
 REWORDLY_SERVER_DIR="${REWORDLY_DIR}/rewordly-server"
+REWORDLY_WEB_DIR="${REWORDLY_DIR}/rewordly-web"
 REWORDLY_DEPLOY_DIR="${REWORDLY_DIR}/rewordly-deploy"
 
 echo -e "${GREEN}🚀 Starting Rewordly Deployment${NC}"
@@ -46,6 +47,21 @@ else
     echo -e "${YELLOW}Cloning rewordly-server...${NC}"
     git clone https://github.com/sercangundogan/rewordly-server.git ${REWORDLY_SERVER_DIR}
     cd ${REWORDLY_SERVER_DIR}
+fi
+
+# Clone or update rewordly-web
+if [ -d "${REWORDLY_WEB_DIR}" ]; then
+    echo -e "${YELLOW}Updating rewordly-web...${NC}"
+    cd ${REWORDLY_WEB_DIR}
+    # Ignore file mode changes to prevent chmod conflicts
+    git config core.fileMode false || true
+    # Reset any file mode changes
+    git checkout . 2>/dev/null || true
+    git pull origin main || git pull origin master
+else
+    echo -e "${YELLOW}Cloning rewordly-web...${NC}"
+    git clone https://github.com/sercangundogan/rewordly-web.git ${REWORDLY_WEB_DIR}
+    cd ${REWORDLY_WEB_DIR}
 fi
 
 # Clone or update rewordly-deploy
@@ -108,7 +124,8 @@ ${DOCKER_COMPOSE} ps
 
 echo ""
 echo -e "${GREEN}✅ Deployment completed!${NC}"
-echo -e "${GREEN}📡 WebSocket Server: wss://161.35.153.201${NC}"
+echo -e "${GREEN}🌐 Web App: https://rewordly.store${NC}"
+echo -e "${GREEN}📡 WebSocket Server: wss://rewordly.store${NC}"
 echo -e "${GREEN}🔍 LanguageTool: http://161.35.153.201:8010${NC}"
 
 # Show logs
